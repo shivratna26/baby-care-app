@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Baby Vaccine Schedule</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 30px;
+    }
+
+    h2 {
+      color: #007bff;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    td a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    td a:hover {
+      text-decoration: underline;
+    }
+
+    #bmiInfo {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .btn {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Vaccine Dose Schedule</h2>
+    <div id="bmiInfo"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Vaccine</th>
+          <th>Recommended Age</th>
+          <th>Due Date</th>
+          <th>Info</th>
+        </tr>
+      </thead>
+      <tbody id="vaccineTable"></tbody>
+    </table>
+
+    <div class="button-group">
+      <button class="btn" onclick="goToProgress()">Check Baby Progress</button>
+      <button class="btn" onclick="window.location.href='nutrition.html'">Nutrition of Baby</button>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const dob = new Date(params.get("dob"));
+    const height = parseFloat(params.get("height"));
+    const weight = parseFloat(params.get("weight"));
+    const gender = params.get("gender");
+
+    const babyData = {
+      name: params.get("name"),
+      gender,
+      height,
+      weight,
+      dob: params.get("dob")
+    };
+
+    sessionStorage.setItem("babyData", JSON.stringify(babyData));
+
+    const vaccines = [
+      { name: "BCG", age: 0 },
+      { name: "Hepatitis B", age: 0 },
+      { name: "OPV (Oral Polio Vaccine)", age: 6 },
+      { name: "DTP (Diphtheria, Tetanus, Pertussis)", age: 6 },
+      { name: "Hib (Haemophilus influenzae type B)", age: 6 },
+      { name: "Pneumococcal Conjugate Vaccine (PCV)", age: 6 },
+      { name: "Rotavirus", age: 6 },
+      { name: "Hepatitis B (2nd Dose)", age: 10 },
+      { name: "DTP (2nd Dose)", age: 10 },
+      { name: "IPV (Injectable Polio Vaccine)", age: 10 },
+      { name: "DTP (Booster)", age: 14 },
+      { name: "Measles", age: 9 },
+      { name: "MMR (Measles, Mumps, Rubella)", age: 15 },
+      { name: "Typhoid Conjugate Vaccine", age: 24 },
+      { name: "Hepatitis A", age: 18 },
+      { name: "Chickenpox", age: 15 }
+    ];
+
+    const table = document.getElementById("vaccineTable");
+
+    function calculateDate(months) {
+      let due = new Date(dob);
+      due.setMonth(due.getMonth() + months);
+      return due.toDateString();
+    }
+
+    vaccines.forEach(vaccine => {
+      let tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${vaccine.name}</td>
+        <td>${vaccine.age} months</td>
+        <td>${calculateDate(vaccine.age)}</td>
+        <td><a href="https://www.google.com/search?q=${encodeURIComponent(vaccine.name)}+vaccine" target="_blank">More Info</a></td>
+      `;
+      table.appendChild(tr);
+    });
+
+    function calculateBMI(weight, height) {
+      const h = height / 100;
+      return (weight / (h * h)).toFixed(2);
+    }
+
+    if (!isNaN(height) && !isNaN(weight)) {
+      const bmi = calculateBMI(weight, height);
+      document.getElementById("bmiInfo").innerHTML = `<strong>BMI:</strong> ${bmi}`;
+    }
+
+    function goToProgress() {
+      window.location.href = "progress.html";
+    }
+  </script>
+</body>
+</html>

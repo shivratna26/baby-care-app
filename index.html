@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Baby Care App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 1;
+    }
+
+    input, select, button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .male {
+      background: url('https://i.ibb.co/DYF5xyX/toy-background.jpg') no-repeat center center/cover;
+    }
+
+    .female {
+      background: url('https://i.ibb.co/svMxWW7/girl-bg.jpg') no-repeat center center/cover;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.7);
+      z-index: 0;
+    }
+  </style>
+</head>
+<body id="body">
+  <div class="container">
+    <h2>Baby Care Information</h2>
+    <input type="text" id="babyName" placeholder="Enter Baby's Name" required />
+    <input type="number" id="babyHeight" placeholder="Enter Height (cm)" required />
+    <input type="number" id="babyWeight" placeholder="Enter Weight (kg)" required />
+    <input type="date" id="babyDob" required />
+    <select id="babyGender" required onchange="updateBackground()">
+      <option value="">Select Gender</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select>
+    <button onclick="getVaccineDoses()">Get Vaccine Recommendations</button>
+    <div id="output"></div>
+  </div>
+
+  <script>
+    function updateBackground() {
+      const gender = document.getElementById("babyGender").value;
+      const body = document.getElementById("body");
+      body.className = gender === "Male" ? "male" : gender === "Female" ? "female" : "";
+    }
+
+    function calculateAge(dob) {
+      const birthDate = new Date(dob);
+      const today = new Date();
+      let ageInMonths = (today.getFullYear() - birthDate.getFullYear()) * 12;
+      ageInMonths += today.getMonth() - birthDate.getMonth();
+      if (today.getDate() < birthDate.getDate()) {
+        ageInMonths--;
+      }
+      return ageInMonths;
+    }
+
+    function getVaccineDoses() {
+      const babyName = document.getElementById("babyName").value;
+      const babyHeight = document.getElementById("babyHeight").value;
+      const babyWeight = document.getElementById("babyWeight").value;
+      const babyDob = document.getElementById("babyDob").value;
+      const babyGender = document.getElementById("babyGender").value;
+
+      if (!babyName || !babyHeight || !babyWeight || !babyDob || !babyGender) {
+        document.getElementById("output").innerHTML = "<p style='color:red;'>Please fill all fields.</p>";
+        return;
+      }
+
+      const babyAge = calculateAge(babyDob);
+
+      window.location.href = `output.html?name=${babyName}&gender=${babyGender}&height=${babyHeight}&weight=${babyWeight}&dob=${babyDob}&age=${babyAge}`;
+    }
+  </script>
+</body>
+</html>

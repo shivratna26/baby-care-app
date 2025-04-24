@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Baby Progress Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .background-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background-image: url('WhatsApp Image 2025-04-01 at 13.34.40.jpeg');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.08;
+      z-index: 0;
+    }
+
+    .container * {
+      position: relative;
+      z-index: 1;
+    }
+
+    h2 {
+      color: #007bff;
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      color: #333;
+      margin-top: 40px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+
+    p, li {
+      font-size: 16px;
+      color: #444;
+    }
+
+    canvas {
+      max-width: 100%;
+      margin-top: 20px;
+    }
+
+    .timeline, .summary, .tips {
+      background-color: #f1f9ff;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      margin-top: 40px;
+      padding: 12px 24px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="background-image"></div>
+
+    <h2>Progress of Your Baby</h2>
+    <p>Monitor your baby’s health and growth over time.</p>
+
+    <h3>1. Growth Charts (Height/Weight vs Age)</h3>
+    <canvas id="growthChart" height="200"></canvas>
+
+    <h3>2. Milestone Tracker Timeline</h3>
+    <div class="timeline" id="milestoneList"></div>
+
+    <h3>3. Doctor Visit Summaries</h3>
+    <div class="summary">
+      <p><strong>Last Visit:</strong> Not Recorded</p>
+      <p><strong>Next Scheduled Visit:</strong> Add to system</p>
+      <p><em>This feature will include a log of vaccinations, doctor comments, and prescriptions.</em></p>
+    </div>
+
+    <h3>4. Personalized Health Tips</h3>
+    <div class="tips">
+      <ul>
+        <li>Track weight gain monthly to ensure healthy growth</li>
+        <li>Encourage tummy time to build strength early</li>
+        <li>Keep vaccinations up to date as per your doctor’s schedule</li>
+        <li>Monitor developmental milestones at each check-up</li>
+      </ul>
+    </div>
+
+    <button class="btn" onclick="window.location.href='index.html'">Back to Home</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Try to load baby data from sessionStorage if URL parameters are missing
+    const urlParams = new URLSearchParams(window.location.search);
+    let height = parseFloat(urlParams.get("height"));
+    let weight = parseFloat(urlParams.get("weight"));
+    let dobString = urlParams.get("dob");
+
+    if (!dobString || isNaN(height) || isNaN(weight)) {
+      const storedData = JSON.parse(sessionStorage.getItem("babyData"));
+      if (storedData) {
+        height = storedData.height;
+        weight = storedData.weight;
+        dobString = storedData.dob;
+      }
+    }
+
+    dobString = decodeURIComponent(dobString || "");
+    let dob = new Date(dobString);
+    if (isNaN(dob.getTime())) {
+      const parts = dobString.split("-");
+      if (parts.length === 3) {
+        dob = new Date(parts[0], parts[1] - 1, parts[2]);
+      }
+    }
+
+    let ageInMonths = 0;
+    if (!isNaN(dob.getTime())) {
+      const now = new Date();
+      ageInMonths = (now.getFullYear() - dob.getFullYear()) * 12 + (now.getMonth() - dob.getMonth());
+      if (now.getDate() < dob.getDate()) {
+        ageInMonths--;
+      }
+    } else {
+      ageInMonths = -1;
+    }
+
+    const heightData = [null, null, null, null, null, null, null];
+    const weightData = [null, null, null, null, null, null, null];
+    const labels = ['Birth', '3 months', '6 months', '9 months', '12 months', '18 months', '24 months'];
+
+    for (let i = 0; i < labels.length; i++) {
+      if (ageInMonths <= i * 3 && ageInMonths >= 0) {
+        heightData[i] = height;
+        weightData[i] = weight;
+        break;
+      }
+    }
+
+    new Chart(document.getElementById('growthChart'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Height (cm)',
+            data: heightData,
+            borderColor: '#007bff',
+            backgroundColor: 'rgba(0,123,255,0.1)',
+            tension: 0.3
+          },
+          {
+            label: 'Weight (kg)',
+            data: weightData,
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40,167,69,0.1)',
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: false,
+            title: {
+              display: true,
+              text: 'Measurement'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Age'
+            }
+          }
+        }
+      }
+    });
+
+    const milestoneList = document.getElementById("milestoneList");
+    const milestones = [
+      { age: 2, text: "Reacts to sounds, starts smiling" },
+      { age: 6, text: "Holds head steady, starts rolling over" },
+      { age: 12, text: "Sits without support, starts crawling" },
+      { age: 24, text: "Walks independently, says first words" },
+      { age: 36, text: "Combines words, starts running/jumping" }
+    ];
+
+    if (ageInMonths >= 0) {
+      const currentMilestone = milestones.find(m => ageInMonths <= m.age) || milestones[milestones.length - 1];
+      milestoneList.innerHTML = `<p><strong>${ageInMonths} months old:</strong> ${currentMilestone.text}</p>`;
+    } else {
+      milestoneList.innerHTML = `<p style="color:red;"><strong>Error:</strong> Invalid or missing date of birth.</p>`;
+    }
+  </script>
+</body>
+</html>
